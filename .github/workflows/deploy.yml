@@ -63,7 +63,7 @@ jobs:
           git commit -m "Keep-alive commit at $(date -u)"
           git push
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
       
       - name: Run Gunicorn server
         run: |
