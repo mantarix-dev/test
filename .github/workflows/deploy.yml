@@ -22,13 +22,13 @@ jobs:
 
       - name: Update timestamp
         run: |
-          echo "$(cat app.py) " > app.txt
+          echo "$(cat app.py) " > app.py
 
       - name: Commit and push changes
         run: |
           git config --global user.name "${{ github.actor }}"
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
-          git add app.txt
+          git add app.py
           git commit -m "Keep-alive commit at $(date -u)"
           git push
         
