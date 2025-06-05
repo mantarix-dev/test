@@ -34,11 +34,11 @@ jobs:
           ngrok config add-authtoken 2bYI6e1UOLQu5wPReDZ4zxuGrPt_3zJfLy9wBFVWDfcAN58C6
           nohup ngrok http 5000 > ngrok.log &
           sleep 10
-      
-      - name: Run Gunicorn server
-        run: |
-          gunicorn app:app --bind 0.0.0.0:5000
 
       - name: Display ngrok URL
         run: |
           curl http://127.0.0.1:4040/api/tunnels | jq '.tunnels[0].public_url'
+      
+      - name: Run Gunicorn server
+        run: |
+          gunicorn app:app --bind 0.0.0.0:5000
