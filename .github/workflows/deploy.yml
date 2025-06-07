@@ -1,23 +1,24 @@
-name: listfiles
-
+name: Test Github Actions Dynamic Matrix
 on:
   workflow_dispatch:
-
+  
 jobs:
-  list-png-files:
+  setup:
     runs-on: ubuntu-latest
     outputs:
-      file: ${{ steps.set-files.outputs.file }}
+      matrix: ${{ steps.matrix.outputs.value }}
     steps:
-      - uses: actions/checkout@v2
-      - id: set-files
-        run: echo "::set-output name=file::$(ls *.png | jq -R -s -c 'split("\n")[:-1]')"
-  check:
-    needs: list-png-files
+      - id: matrix
+        run: |
+          echo "value=[\"a\", \"b\", \"c\"]" >> $GITHUB_OUTPUT
+      - run: |
+          echo "${{ steps.matrix.outputs.value }}"
+  build:
+    needs: [ setup ]
     runs-on: ubuntu-latest
     strategy:
-        matrix:
-            file: ${{ fromJson(needs.list-png-files.outputs.file) }}
+      matrix:
+        value: ${{fromJSON(needs.setup.outputs.matrix)}}
     steps:
       - run: |
-          echo "${{ matrix.file }}"
+          echo "${{ matrix.value }}"
