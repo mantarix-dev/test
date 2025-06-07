@@ -15,9 +15,6 @@ jobs:
       RESTART_COUNT: ${{ github.event.inputs.restart_count || '0' }}  # ورودی از اجرای دستی یا پیش‌فرض صفر
       MAX_RESTARTS: 3
       GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
-      REPO: ${{ github.repository }}
-      WORKFLOW_ID: deploy.yml
-      REF: main
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -61,8 +58,8 @@ jobs:
           curl -X POST \
             -H "Accept: application/vnd.github+json" \
             -H "Authorization: token $GITHUB_TOKEN" \
-            https://api.github.com/repos/$REPO/actions/workflows/$WORKFLOW_ID/dispatches \
-            -d "{\"ref\":\"$REF\"}"
+            https://api.github.com/repos/${{ github.repository }}/actions/workflows/deploy.yml/dispatches \
+            -d "{\"ref\":\"main\"}"
 
       - name: Final step message
         run: echo "Workflow finished."
