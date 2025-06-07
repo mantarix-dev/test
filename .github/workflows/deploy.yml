@@ -35,7 +35,6 @@ jobs:
           git push
 
       - name: Re-trigger workflow
-        if: ${{ github.event_name == 'workflow_dispatch' }}
         run: |
           curl -X POST \
           -H "Authorization: token ${{ secrets.PAT_TOKEN }}" \
