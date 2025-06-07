@@ -1,44 +1,22 @@
-name: Deploy Flask with ngrok
+# .github/workflows/keepalive-dispatch.yml
+name: Keepalive Dispatch
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 
 jobs:
-  deploy:
+  long-job:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+      # ← کار اصلی شما
 
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.9'
-
-      - name: Install dependencies
+      - name: Trigger next run via API
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: Download ngrok
-        run: |
-          curl -s https://ngrok-agent.s3.amazonaws.com/ngrok.asc | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null
-          echo "deb https://ngrok-agent.s3.amazonaws.com buster main" | sudo tee /etc/apt/sources.list.d/ngrok.list
-          sudo apt update && sudo apt install ngrok
-
-      - name: Start ngrok tunnel
-        run: |
-          ngrok config add-authtoken 2bYI6e1UOLQu5wPReDZ4zxuGrPt_3zJfLy9wBFVWDfcAN58C6
-          nohup ngrok http 5000 > ngrok.log &
-          sleep 10
-
-      - name: Display ngrok URL
-        run: |
-          curl http://127.0.0.1:4040/api/tunnels | jq '.tunnels[0].public_url'
-      
-      - name: Run Gunicorn server
-        run: |
-          gunicorn app:app --bind 0.0.0.0:5000
+          curl -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.PAT }}" \
+            https://api.github.com/repos/${{ github.repository }}/actions/workflows/keepalive-dispatch.yml/dispatches \
+            -d '{"ref":"main"}'
+        env:
+          PAT: ${{ secrets.PAT_TOKEN }}
