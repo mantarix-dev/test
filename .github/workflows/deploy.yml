@@ -1,19 +1,14 @@
-name: Deploy Flask with ngrok (Auto Restart)
+name: Deploy Flask with ngrok
 
 on:
   push:
     branches:
       - main
-  workflow_dispatch:  # برای اجرا دستی
-  schedule:
-    - cron: '0 */6 * * *'  # اجرای زمان‌بندی شده (اختیاری)
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    env:
-      RESTART_COUNT: ${{ github.event.inputs.restart_count || '0' }}  # ورودی از اجرای دستی یا پیش‌فرض صفر
-      MAX_RESTARTS: 3
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -43,29 +38,7 @@ jobs:
       - name: Display ngrok URL
         run: |
           curl http://127.0.0.1:4040/api/tunnels | jq '.tunnels[0].public_url'
-
-      - name: Run Gunicorn server (background)
+      
+      - name: Run Gunicorn server
         run: |
-          nohup gunicorn app:app --bind 0.0.0.0:5000 &
-
-      - name: Check restart count and decide to restart workflow
-        if: ${{ env.RESTART_COUNT != '' && (env.RESTART_COUNT | int) < (env.MAX_RESTARTS | int) }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
-          REPO: ${{ github.repository }}
-          WORKFLOW_ID: deploy.yml
-          REF: main
-          RESTART_COUNT_NEXT: ${{ (env.RESTART_COUNT | int) + 1 }}
-        run: |
-          echo "Current restart count: $RESTART_COUNT"
-          echo "Max restarts allowed: $MAX_RESTARTS"
-          echo "Triggering workflow restart with count: $RESTART_COUNT_NEXT"
-
-          curl -X POST \
-            -H "Accept: application/vnd.github+json" \
-            -H "Authorization: token $GITHUB_TOKEN" \
-            https://api.github.com/repos/$REPO/actions/workflows/$WORKFLOW_ID/dispatches \
-            -d "{\"ref\":\"$REF\",\"inputs\":{\"restart_count\":\"$RESTART_COUNT_NEXT\"}}"
-
-      - name: Final step message
-        run: echo "Workflow finished."
+          gunicorn app:app --bind 0.0.0.0:5000
