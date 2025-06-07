@@ -32,6 +32,7 @@ jobs:
       - name: Start ngrok tunnel
         run: |
           ngrok config add-authtoken 2bYI6e1UOLQu5wPReDZ4zxuGrPt_3zJfLy9wBFVWDfcAN58C6
+          pkill ngrok
           nohup ngrok http 5000 > ngrok.log &
           sleep 10
 
