@@ -2,7 +2,7 @@ name: Deploy Flask with ngrok
 
 on:
   schedule:
-    - cron: '0 */6 * * *'  # هر 6 ساعت یک بار
+    - cron: '*/1 * * * *'  # هر 1 دقیقه
   push:
     branches:
       - main
