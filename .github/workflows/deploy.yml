@@ -12,8 +12,6 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     env:
-      RESTART_COUNT: ${{ github.event.inputs.restart_count || '0' }}  # ورودی از اجرای دستی یا پیش‌فرض صفر
-      MAX_RESTARTS: 3
       GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
       REPO: ${{ github.repository }}
       WORKFLOW_ID: deploy.yml
@@ -51,3 +49,14 @@ jobs:
       - name: Run Gunicorn server
         run: |
           nohup gunicorn app:app --bind 0.0.0.0:5000
+
+      - name: Check restart count and decide to restart workflow
+        run: |
+          curl -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: token $GITHUB_TOKEN" \
+            https://api.github.com/repos/$REPO/actions/workflows/$WORKFLOW_ID/dispatches \
+            -d "{\"ref\":\"$REF\"}"
+
+      - name: Final step message
+        run: echo "Workflow finished."
