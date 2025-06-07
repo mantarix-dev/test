@@ -34,8 +34,7 @@ jobs:
           git diff --cached --quiet || git commit -m "Auto update timestamp"
           git push
 
-      - name: Re-trigger workflow
-        if: ${{ github.event_name == 'workflow_dispatch' }}
+      - name: tttttt
         run: |
           curl -X POST \
           -H "Authorization: token ${{ secrets.PAT_TOKEN }}" \
