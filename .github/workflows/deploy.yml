@@ -27,18 +27,18 @@ jobs:
         run: |
           curl -s https://ngrok-agent.s3.amazonaws.com/ngrok.asc | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null
           echo "deb https://ngrok-agent.s3.amazonaws.com buster main" | sudo tee /etc/apt/sources.list.d/ngrok.list
-          sudo apt update && sudo apt install -y ngrok
-
-      - name: Start Flask server with Gunicorn
-        run: |
-          nohup gunicorn app:app --bind 0.0.0.0:5000 > gunicorn.log 2>&1 &
+          sudo apt update && sudo apt install ngrok
 
       - name: Start ngrok tunnel
         run: |
           ngrok config add-authtoken 2bYI6e1UOLQu5wPReDZ4zxuGrPt_3zJfLy9wBFVWDfcAN58C6
-          nohup ngrok http 5000 > ngrok.log 2>&1 &
+          nohup ngrok http 5000 > ngrok.log &
           sleep 10
 
       - name: Display ngrok URL
         run: |
-          curl -s http://127.0.0.1:4040/api/tunnels | jq '.tunnels[0].public_url'
+          curl http://127.0.0.1:4040/api/tunnels | jq '.tunnels[0].public_url'
+      
+      - name: Run Gunicorn server
+        run: |
+          gunicorn app:app --bind 0.0.0.0:5000
